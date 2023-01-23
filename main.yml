@@ -5,7 +5,7 @@ on: [push]
 default: 
   image: ubuntu-latest
 
-stages :
+stages:
   - build
   - test
   - deploy

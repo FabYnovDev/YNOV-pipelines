@@ -1,77 +1,20 @@
-name: YNOV pipeline CI/CD
+from bottle import route, run, template
+from misc import add
 
-on: [push]
-
-default: 
-  image: ubuntu-latest
-
-stages:
-  - build
-  - test
-  - deploy
-  - notify
-  
-
-build-job:
-  stage: build
-  steps:
-    - uses: actions/checkout@v3
-    - name: Setup Python 3.10
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 black
-
-    - name: Lint with flake8
-      run: |
-        flake8 .
-
-    - name: Lint with black
-      run: |
-        black . --check
+@route("/hello/<name>")
+def index(name):
+    return template("<b>Hello {{name}}</b>!", name=name)
 
 
-test-job:
-    stage: test
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup Python 3.10
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+@route("/")
+def homepage():
+    return "<b>Hello you</b>!"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest
 
-      - name: Test with Pytest
-        run: |
-          pytest --doctest-modules --ignore=main.py
+@route("/add/<a>/<b>")
+@route("/add/<a>/<b>/")
+def route_add(a, b):
+    return {"result": add(a, b)}
 
-deploy-job:
-  stage: deploy
-  steps:
-    - name: MEP
-      run: echo "MEP on server"
 
-    - name: Setup Python 3.10
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-
-    - name: Test if website is up 🚀
-      run: |
-        pip install requests
-        python -c "import requests; exit(1) if requests.get('https://www.google.fr').status_code != 200 else exit(0)"
-  allow_failure: true
-
-notify-job:
-  stage: notify
-  steps: 
-    - name: SLACK
-      run: echo "Pipeline run"
+run(host="localhost", port=8080, reloader=True)

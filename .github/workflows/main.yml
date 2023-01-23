@@ -78,7 +78,7 @@ jobs:
 
   notify:
     runs-on: ubuntu-latest
-    if: alaways()
+    if: always()
     needs: deploy
     steps: 
       - name: SLACK
